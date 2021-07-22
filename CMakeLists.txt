@@ -13,6 +13,8 @@ set(project_sources
     batch_command.cpp
     batch_command_handler.cpp
     tokenizer.cpp
+    Output/console_output.cpp
+    Output/logfile_output.cpp
     main.cpp
     )
 

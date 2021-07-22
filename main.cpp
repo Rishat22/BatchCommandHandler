@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include "Output/console_output.h"
+#include "Output/logfile_output.h"
 #include "batch_command_handler.h"
 
 int main(int argc, char* argv[])
@@ -20,6 +22,8 @@ int main(int argc, char* argv[])
 	}
 
 	BatchCommandHandler batch_command_handler(commands_max_size);
+	batch_command_handler.AddOutputPrinter( new ConsoleOutput() );
+	batch_command_handler.AddOutputPrinter( new LogFileOutput() );
 	std::string inputData;
 	while(std::getline(std::cin, inputData))
 	{

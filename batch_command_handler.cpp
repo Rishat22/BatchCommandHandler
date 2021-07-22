@@ -11,6 +11,11 @@ void BatchCommandHandler::ProcessCommand(const std::string& str_command){
 	ProcessCommand( m_Tokenizer.Tokenize( str_command ) );
 }
 
+void BatchCommandHandler::AddOutputPrinter(IOutput* output_printer)
+{
+	m_OutputPrinters.push_back( output_printer );
+}
+
 void BatchCommandHandler::ProcessCommand(const std::vector<BatchCommand*>& batch_commands)
 {
 	for( const auto batch_command : batch_commands )
@@ -47,13 +52,8 @@ void BatchCommandHandler::PrintCommands(const std::vector<std::string> str_comma
 {
 	if( str_commands.empty() )
 		return;
-	std::cout << "bulk: ";
-	size_t index = 0;
-	for(const auto& command_data : str_commands)
+	for(const auto output_printer : m_OutputPrinters)
 	{
-		std::cout << command_data;
-		if(++index < str_commands.size())
-			std::cout << ", ";
+		output_printer->print(str_commands);
 	}
-	std::cout << std::endl;
 }
