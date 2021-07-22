@@ -8,8 +8,8 @@ Tokenizer::Tokenizer(const size_t commandsMaxSize)
 {
 }
 
-std::vector<BatchCommand*> Tokenizer::Tokenize(const std::string& str_command) {
-	std::vector< BatchCommand* > result_commands;
+BatchCommands Tokenizer::Tokenize(const std::string& str_command) {
+	BatchCommands result_commands;
 	if(str_command == "{")
 	{
 		if(!m_Brc++)
@@ -26,7 +26,7 @@ std::vector<BatchCommand*> Tokenizer::Tokenize(const std::string& str_command) {
 	}
 	else
 	{
-		if(!m_Brc)  //Если закрытая инкрементируем счетчик. //ToDo delete all commetns
+		if(!m_Brc)
 		{
 			result_commands.emplace_back( new BatchCommand( TypeCommad::ADD_STATIC,  str_command ) );
 			if(++m_StaticCommandCounter == m_CommandsMaxSize)

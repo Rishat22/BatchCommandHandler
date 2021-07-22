@@ -16,7 +16,6 @@ class BatchCommand{
 public:
     BatchCommand(const TypeCommad type, const std::string& arg );
     BatchCommand(const TypeCommad type );
-    BatchCommand* clone();
     TypeCommad type() const;
     std::string arg() const;
 

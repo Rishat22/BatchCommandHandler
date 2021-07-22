@@ -12,11 +12,6 @@ BatchCommand::BatchCommand(const TypeCommad type)
 	this->m_Type = type;
 }
 
-BatchCommand* BatchCommand::clone()
-{
-	return new BatchCommand( m_Type, m_Arg );
-}
-
 TypeCommad BatchCommand::type() const
 {
 	return m_Type;

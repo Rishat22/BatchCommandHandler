@@ -2,13 +2,16 @@
 #define TOKENIZER_H
 #include <string>
 #include <vector>
+#include <memory>
 #include "batch_command.h"
+
+using BatchCommands = std::vector< std::unique_ptr< BatchCommand > >;
 
 class Tokenizer
 {
 public:
     Tokenizer(const size_t commandsMaxSize);
-    std::vector< BatchCommand* > Tokenize( const std::string& str_command );
+    BatchCommands Tokenize( const std::string& str_command );
 private:
     size_t m_CommandsMaxSize;
     size_t m_StaticCommandCounter;

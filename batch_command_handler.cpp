@@ -13,12 +13,12 @@ void BatchCommandHandler::ProcessCommand(const std::string& str_command){
 
 void BatchCommandHandler::AddOutputPrinter(IOutput* output_printer)
 {
-	m_OutputPrinters.push_back( output_printer );
+	m_OutputPrinters.emplace_back( output_printer );
 }
 
-void BatchCommandHandler::ProcessCommand(const std::vector<BatchCommand*>& batch_commands)
+void BatchCommandHandler::ProcessCommand(const BatchCommands& batch_commands)
 {
-	for( const auto batch_command : batch_commands )
+	for( const auto& batch_command : batch_commands )
 	{
 		switch (batch_command->type()){
 			case TypeCommad::OUT_STATIC:
@@ -52,7 +52,7 @@ void BatchCommandHandler::PrintCommands(const std::vector<std::string> str_comma
 {
 	if( str_commands.empty() )
 		return;
-	for(const auto output_printer : m_OutputPrinters)
+	for(const auto& output_printer : m_OutputPrinters)
 	{
 		output_printer->print(str_commands);
 	}
