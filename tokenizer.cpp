@@ -12,14 +12,14 @@ std::vector<BatchCommand*> Tokenizer::Tokenize(const std::string& str_command) {
 	std::vector< BatchCommand* > result_commands;
 	if(str_command == "{")
 	{
-		if(!m_Brc++) //Открываем скобку.
+		if(!m_Brc++)
 		{
 			result_commands.emplace_back( new BatchCommand( TypeCommad::OUT_STATIC ) );
 		}
 	}
 	else if (str_command == "}")
 	{
-		if(!--m_Brc)  //Если закрытая инкрементируем счетчик.
+		if(!--m_Brc)
 		{
 			result_commands.emplace_back( new BatchCommand( TypeCommad::OUT_DYNAMIC ) );
 		}

@@ -12,7 +12,7 @@ public:
 private:
     size_t m_CommandsMaxSize;
     size_t m_StaticCommandCounter;
-    size_t m_Brc; // счетчик незакрытых скобок.;
+    size_t m_Brc;
 };
 
 

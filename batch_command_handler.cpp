@@ -35,12 +35,12 @@ void BatchCommandHandler::ProcessCommand(const std::vector<BatchCommand*>& batch
 			}
 			case TypeCommad::ADD_STATIC:
 			{
-				m_StaticCommands.push_back(batch_command->arg()); //ToDo mb emplace_back
+				m_StaticCommands.emplace_back(batch_command->arg());
 				break;
 			}
 			case TypeCommad::ADD_DYNAMIC:
 			{
-				m_DynamicCommands.push_back(batch_command->arg());
+				m_DynamicCommands.emplace_back(batch_command->arg());
 				break;
 			}
 			default: break;
