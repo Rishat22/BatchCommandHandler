@@ -10,6 +10,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(project_sources
+    batch_command.cpp
+    batch_command_handler.cpp
+    tokenizer.cpp
     main.cpp
     )
 
