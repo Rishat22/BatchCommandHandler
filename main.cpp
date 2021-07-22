@@ -4,7 +4,8 @@
 
 enum class TypeCommad{
 	DEFAULT,
-	OUT,
+	OUT_STATIC,
+	OUT_DYNAMIC,
 	WHILE,
 	END
 };
@@ -13,76 +14,54 @@ class BatchCommand{
 public:
 	BatchCommand(const TypeCommad type, const std::string& arg )
 	{
-		this->mType = type;
-		this->mArg = arg;
+		this->m_Type = type;
+		this->m_Arg = arg;
 	}
 
 	BatchCommand(const TypeCommad type )
 	{
-		this->mType = type;
+		this->m_Type = type;
 	}
 	BatchCommand* clone()
 	{
-		return new BatchCommand( mType, mArg );
+		return new BatchCommand( m_Type, m_Arg );
 	}
 	TypeCommad type() const
 	{
-		return mType;
+		return m_Type;
 	}
 
 	std::string arg() const
 	{
-		return mArg;
+		return m_Arg;
 	}
 
 private:
-	std::string mArg;
-	TypeCommad mType = TypeCommad::DEFAULT;
+	std::string m_Arg;
+	TypeCommad m_Type = TypeCommad::DEFAULT;
 };
 
 class Tokenizer
 {
 public:
-	Tokenizer(const size_t commandsMaxSize)
-		: m_CommandsMaxSize(commandsMaxSize)
-	{}
-	std::vector< BatchCommand* >& Tokenize( const std::vector< std::string >& str_commands ) {
+	Tokenizer() = default;
+	BatchCommand* Tokenize( const std::string& str_command ) {
+		BatchCommand* result_command = nullptr;
+		if(str_command == "{")
+		{
+			result_command =  new BatchCommand( TypeCommad::WHILE );
+		}
+		else if (str_command == "}")
+		{
+			result_command = new BatchCommand( TypeCommad::END );
+		}
+		else
+		{
+			result_command = new BatchCommand( TypeCommad::DEFAULT,  str_command );
+		}
 
-		size_t static_command_counter = 0;
-		for( const auto& command : str_commands ) {
-			if(command == "{")
-			{
-				mRetValue.emplace_back( new BatchCommand( TypeCommad::WHILE ) );
-				break;
-			}
-			else if (command == "}")
-			{
-				mRetValue.emplace_back( new BatchCommand( TypeCommad::END ) );
-				break;
-			}
-			else
-			{
-				mRetValue.emplace_back( new BatchCommand( TypeCommad::DEFAULT,  command ) );
-				if(++static_command_counter == m_CommandsMaxSize)
-				{
-					mRetValue.emplace_back( new BatchCommand( TypeCommad::OUT ) );
-					static_command_counter = 0;
-				}
-				break;
-			}
-			}
-
-		return mRetValue;
+		return result_command;
 	}
-	void ClearData()
-	{
-		for (auto it = mRetValue.begin() ; it != mRetValue.end(); ++it)
-			if((*it) != nullptr)
-				delete (*it);
-	}
-private:
-	size_t m_CommandsMaxSize;
-	std::vector< BatchCommand* > mRetValue;
 };
 
 class BatchCommandHandler
@@ -90,74 +69,82 @@ class BatchCommandHandler
 public:
 	BatchCommandHandler(const size_t commandsMaxSize)
 		: m_CommandsMaxSize(commandsMaxSize)
-		, mTokenizer(m_CommandsMaxSize)
 	{
 		m_StaticCommands.reserve(commandsMaxSize);
 	}
 	~BatchCommandHandler() = default;
-	void Interpret(const std::vector< std::string >& str_commands ){
-		Interpret( mTokenizer.Tokenize( str_commands ) );
-	}
-	void ClearData()
-	{
-		mTokenizer.ClearData();
+	void ProcessCommand( const std::string& str_command ){
+		ProcessCommand( m_Tokenizer.Tokenize( str_command ) );
 	}
 private:
-	void Interpret(std::vector<BatchCommand*> batch_commands)
+	void ProcessCommand(BatchCommand* batch_command)
 	{
-		size_t brc = 0; // счетчик незакрытых скобок.
-		for( const auto batch_command : batch_commands )
-		{
-			switch (batch_command->type()){
-				case TypeCommad::OUT:
+		switch (batch_command->type()){
+			case TypeCommad::OUT_STATIC:
+			{
+				PrintCommands(m_StaticCommands);
+				m_StaticCommands.clear();
+				break;
+			}
+			case TypeCommad::OUT_DYNAMIC:
+			{
+				PrintCommands(m_DynamicCommands);
+				m_StaticCommands.clear();
+				break;
+			}
+			case TypeCommad::WHILE:
+			{
+				if(!m_Brc++) //Открываем скобку.
 				{
-					for(const auto& command_data : m_StaticCommands)
-						std::cout << command_data;
+					PrintCommands(m_StaticCommands);
 					m_StaticCommands.clear();
-					break;
 				}
-				case TypeCommad::WHILE:
+				break;
+			}
+			case TypeCommad::END:
+			{
+				if(!--m_Brc)  //Если закрытая инкрементируем счетчик.
 				{
-					if(!brc++) //Открываем скобку.
-					{
-						for(const auto& command_data : m_StaticCommands)
-							std::cout << command_data;
-						m_StaticCommands.clear();
-					}
-					break;
+					PrintCommands(m_DynamicCommands);
+					m_DynamicCommands.clear();
 				}
-				case TypeCommad::END:
+				break;
+			}
+			default:
+			{
+				if(!m_Brc)  //Если закрытая инкрементируем счетчик.
+					m_StaticCommands.push_back(batch_command->arg());
+				else
+					m_DynamicCommands.push_back(batch_command->arg());
+
+				if(m_StaticCommands.size() == m_CommandsMaxSize)
 				{
-					if(!brc--)  //Если закрытая инкрементируем счетчик.
-					{
-						for(const auto& command_data : m_DynamicCommands)
-							std::cout << command_data;
-						m_DynamicCommands.clear();
-					}
-					break;
+					PrintCommands(m_StaticCommands);
+					m_StaticCommands.clear();
 				}
-				default:
-				{
-					if(!brc)  //Если закрытая инкрементируем счетчик.
-						m_StaticCommands.push_back(batch_command->arg());
-					else
-						m_DynamicCommands.push_back(batch_command->arg());
-					break;
-				}
+				break;
 			}
 		}
-//		case TypeComad::END:
-//		{
-//			if(!brc)
-//			{
-//				//Выводим статический блок
-//			}
-//			break;
-//		}
+	}
+private:
+	void PrintCommands(const std::vector< std::string > str_commands)
+	{
+		if( str_commands.empty() )
+			return;
+		std::cout << "bulk: ";
+		size_t index = 0;
+		for(const auto& command_data : str_commands)
+		{
+			std::cout << command_data;
+			if(++index < str_commands.size())
+				std::cout << ", ";
+		}
+		std::cout << std::endl;
 	}
 private:
 	size_t m_CommandsMaxSize;
-	Tokenizer mTokenizer;
+	size_t m_Brc = 0; // счетчик незакрытых скобок.;
+	Tokenizer m_Tokenizer;
 	std::vector< std::string > m_StaticCommands;
 	std::vector< std::string > m_DynamicCommands;
 };
@@ -178,13 +165,11 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::string inputData;
 	BatchCommandHandler batch_command_handler(commands_max_size);
-	std::vector<std::string> str_commands;
-	std::string str_command;
+	std::string inputData;
 	while(std::getline(std::cin, inputData))
 	{
-		str_commands.push_back(str_command);
+		batch_command_handler.ProcessCommand(inputData);
 	}
 	return 0;
 }

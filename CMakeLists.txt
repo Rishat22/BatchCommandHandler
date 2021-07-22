@@ -11,12 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(project_sources
     main.cpp
-#    Commands/icommand.h
-#    Commands/batch_command_handler.cpp
-#    Commands/file_command.cpp
-#    Commands/shape_command.cpp
-#    Commands/start_dynamic_block.cpp
-#    Commands/end_dynamic_block.cpp
     )
 
 add_executable(BatchCommandHandler ${project_sources} )
