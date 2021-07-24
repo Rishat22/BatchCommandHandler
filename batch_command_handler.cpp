@@ -48,7 +48,7 @@ void BatchCommandHandler::ProcessCommand(const BatchCommands& batch_commands)
 	}
 }
 
-void BatchCommandHandler::PrintCommands(const std::vector<std::string> str_commands)
+void BatchCommandHandler::PrintCommands(const std::vector<std::string>& str_commands)
 {
 	if( str_commands.empty() )
 		return;
