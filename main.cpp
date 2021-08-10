@@ -1,8 +1,6 @@
 #include <iostream>
 #include <string>
-#include "Output/console_output.h"
-#include "Output/logfile_output.h"
-#include "batch_command_handler.h"
+#include "async.h"
 
 int main(int argc, char* argv[])
 {
@@ -21,13 +19,12 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	BatchCommandHandler batch_command_handler(commands_max_size);
-	batch_command_handler.AddOutputPrinter( new ConsoleOutput() );
-	batch_command_handler.AddOutputPrinter( new LogFileOutput() );
+	async::connect(commands_max_size);
 	std::string inputData;
 	while(std::getline(std::cin, inputData))
 	{
-		batch_command_handler.ProcessCommand(inputData);
+		async::receive(inputData.c_str(), inputData.size(), 0);
 	}
+	async::disconnect(0);
 	return 0;
 }
