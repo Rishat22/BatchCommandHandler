@@ -6,7 +6,13 @@
 
 LogFileOutput::LogFileOutput()
 	: m_TaskReady(false)
+	, m_isWorking(false)
 {
+}
+
+LogFileOutput::~LogFileOutput()
+{
+	stopWork();
 }
 
 void LogFileOutput::print(const std::vector<std::string>& str_data)
@@ -52,29 +58,30 @@ void LogFileOutput::wait_for_task(bool& task_ready)
 	lock.unlock();
 }
 
-void LogFileOutput::start()
+void LogFileOutput::startWork()
 {
+	m_isWorking = true;
 	for (auto& thread : m_ProcessingThreads)
 	{
 		thread = std::thread([&]()
 		{
-			while (true)
+			while (m_isWorking || !m_CmdTasks.empty())
 			{
-				if (!m_CmdTasks.empty())
-				{
-					wait_for_task(m_TaskReady);
-					saveData(m_CmdTasks.front());
-					m_CmdTasks.pop();
-				}
+				wait_for_task(m_TaskReady);
+				saveData(m_CmdTasks.front());
+				m_CmdTasks.pop();
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 		});
-		thread.join();
 	}
 }
 
-void LogFileOutput::stop()
+void LogFileOutput::stopWork()
 {
-
+	m_isWorking = false;
+	for (auto& thread : m_ProcessingThreads)
+	{
+		thread.join();
+	}
 }
 

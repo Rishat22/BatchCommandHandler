@@ -6,6 +6,7 @@
 class IOutput
 {
 public:
+	virtual ~IOutput() = default;
 	virtual void print(const std::vector<std::string>& str_data) = 0;
 };
 #endif // IOUTPUT_H

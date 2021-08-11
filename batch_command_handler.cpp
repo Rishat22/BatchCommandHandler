@@ -7,29 +7,37 @@ BatchCommandHandler::BatchCommandHandler(const size_t commandsMaxSize)
 	m_StaticCommands.reserve(commandsMaxSize);
 }
 
-void BatchCommandHandler::ProcessCommand(const std::string& str_command){
-	ProcessCommand( m_Tokenizer.Tokenize( str_command ) );
+BatchCommandHandler::~BatchCommandHandler()
+{
+	for(auto& output_printer : m_OutputPrinters)
+	{
+		output_printer.reset();
+	}
 }
 
-void BatchCommandHandler::AddOutputPrinter(IOutput* output_printer)
+void BatchCommandHandler::processCommand(const std::string& str_command){
+	processCommand( m_Tokenizer.Tokenize( str_command ) );
+}
+
+void BatchCommandHandler::addOutputPrinter(IOutput* output_printer)
 {
 	m_OutputPrinters.emplace_back( output_printer );
 }
 
-void BatchCommandHandler::ProcessCommand(const BatchCommands& batch_commands)
+void BatchCommandHandler::processCommand(const BatchCommands& batch_commands)
 {
 	for( const auto& batch_command : batch_commands )
 	{
 		switch (batch_command->type()){
 			case TypeCommad::OUT_STATIC:
 			{
-				PrintCommands(m_StaticCommands);
+				printCommands(m_StaticCommands);
 				m_StaticCommands.clear();
 				break;
 			}
 			case TypeCommad::OUT_DYNAMIC:
 			{
-				PrintCommands(m_DynamicCommands);
+				printCommands(m_DynamicCommands);
 				m_DynamicCommands.clear();
 				break;
 			}
@@ -48,7 +56,7 @@ void BatchCommandHandler::ProcessCommand(const BatchCommands& batch_commands)
 	}
 }
 
-void BatchCommandHandler::PrintCommands(const std::vector<std::string> str_commands)
+void BatchCommandHandler::printCommands(const std::vector<std::string> str_commands)
 {
 	if( str_commands.empty() )
 		return;

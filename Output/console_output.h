@@ -7,6 +7,7 @@
 class ConsoleOutput : public IOutput
 {
 public:
+	virtual ~ConsoleOutput() = default;
 	void print(const std::vector<std::string>& str_data) override;
 };
 

@@ -12,8 +12,10 @@ int connect(const std::size_t bulk_size)
 {
 	BATCH_COMMAND_HANDLER.reset( new BatchCommandHandler(bulk_size));
 
-	BATCH_COMMAND_HANDLER->AddOutputPrinter( new ConsoleOutput() );
-	BATCH_COMMAND_HANDLER->AddOutputPrinter( new LogFileOutput() );
+	BATCH_COMMAND_HANDLER->addOutputPrinter( new ConsoleOutput() );
+	auto logfile_output = new LogFileOutput();
+	logfile_output->startWork();
+	BATCH_COMMAND_HANDLER->addOutputPrinter( logfile_output );
 
 	return 0;
 }
@@ -21,7 +23,7 @@ int connect(const std::size_t bulk_size)
 void receive(const char* data, const std::size_t /*size*/, const int /*context*/)
 {
 	const std::string inputData = data;
-	BATCH_COMMAND_HANDLER->ProcessCommand(inputData);
+	BATCH_COMMAND_HANDLER->processCommand(inputData);
 }
 
 void disconnect(const int /*context*/)
