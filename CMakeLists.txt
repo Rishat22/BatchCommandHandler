@@ -30,7 +30,9 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC "${CMAKE_BINARY_DIR}"
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${NAME_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
+
+target_link_libraries(${PROJECT_NAME} PUBLIC pthread)
 target_include_directories(${LIBRARY_NAME} PRIVATE "${CMAKE_BINARY_DIR}")
 target_include_directories(${LIBRARY_NAME} PRIVATE "${PATHS}")
 

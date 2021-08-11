@@ -30,7 +30,7 @@ void BatchCommandHandler::ProcessCommand(const BatchCommands& batch_commands)
 			case TypeCommad::OUT_DYNAMIC:
 			{
 				PrintCommands(m_DynamicCommands);
-				m_StaticCommands.clear();
+				m_DynamicCommands.clear();
 				break;
 			}
 			case TypeCommad::ADD_STATIC:

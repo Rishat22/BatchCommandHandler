@@ -7,7 +7,7 @@
 class ConsoleOutput : public IOutput
 {
 public:
-    void print(const std::vector<std::string> str_data) override;
+	void print(const std::vector<std::string>& str_data) override;
 };
 
 #endif // CONSOLEOUTPUT_H

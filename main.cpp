@@ -19,12 +19,12 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	async::connect(commands_max_size);
+	const auto context = async::connect(commands_max_size);
 	std::string inputData;
 	while(std::getline(std::cin, inputData))
 	{
-		async::receive(inputData.c_str(), inputData.size(), 0);
+		async::receive(inputData.c_str(), inputData.size(), context);
 	}
-	async::disconnect(0);
+	async::disconnect(context);
 	return 0;
 }
