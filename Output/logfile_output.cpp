@@ -1,6 +1,8 @@
 #include "logfile_output.h"
 #include <chrono>
 #include <fstream>
+#include <sstream>
+#include <random>
 
 //const std::chrono::milliseconds task_process_time(100);
 
@@ -45,9 +47,17 @@ void LogFileOutput::saveData(const std::vector<std::string>& str_data)
 
 std::string LogFileOutput::getFileName()
 {
+	std::ostringstream filename_stream;
 	const auto curr_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-	std::string file_name = "bulk" + std::to_string(curr_time) + ".log";
-	return file_name;
+	filename_stream << "bulk" << curr_time;
+
+	std::random_device r;
+	std::seed_seq seed1{r()};
+	std::mt19937 e(seed1);
+	std::uniform_int_distribution<int> uniform_dist(0, 100);
+	std::normal_distribution<> normal_dist(uniform_dist(e), 2);
+	filename_stream << "_" << std::round(normal_dist(e)) << ".log";
+	return filename_stream.str();
 }
 
 void LogFileOutput::wait_for_task(bool& task_ready)
@@ -70,7 +80,6 @@ void LogFileOutput::startWork()
 				wait_for_task(m_TaskReady);
 				saveData(m_CmdTasks.front());
 				m_CmdTasks.pop();
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 		});
 	}
