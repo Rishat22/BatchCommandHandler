@@ -21,7 +21,7 @@ public:
 private:
 	void saveData(const std::vector<std::string>& str_data);
 	std::string getFileName();
-	void wait_for_task(bool& task_ready);
+	std::vector<std::string> wait_for_task(bool& task_ready);
 private:
 	std::queue<std::vector<std::string>> m_CmdTasks;
 	std::condition_variable m_ConditionVar;

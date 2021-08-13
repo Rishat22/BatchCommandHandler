@@ -60,12 +60,15 @@ std::string LogFileOutput::getFileName()
 	return filename_stream.str();
 }
 
-void LogFileOutput::wait_for_task(bool& task_ready)
+std::vector<std::string> LogFileOutput::wait_for_task(bool& task_ready)
 {
 	std::unique_lock lock(m_Mtx);
 	m_ConditionVar.wait(lock, [&task_ready]() { return task_ready; });
+	const auto task_data = m_CmdTasks.front();
+	m_CmdTasks.pop();
 	task_ready = false;
 	lock.unlock();
+	return task_data;
 }
 
 void LogFileOutput::startWork()
@@ -77,9 +80,8 @@ void LogFileOutput::startWork()
 		{
 			while (m_isWorking || !m_CmdTasks.empty())
 			{
-				wait_for_task(m_TaskReady);
-				saveData(m_CmdTasks.front());
-				m_CmdTasks.pop();
+				const auto task_data = wait_for_task(m_TaskReady);
+				saveData(task_data);
 			}
 		});
 	}
