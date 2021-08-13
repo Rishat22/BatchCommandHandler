@@ -21,15 +21,16 @@ file(GLOB SRCS
 
 add_library(${LIBRARY_NAME} STATIC  src/async.cpp  include/async.h)
 
-add_executable(${PROJECT_NAME} ${SRCS} )
+add_executable( ${PROJECT_NAME} ${SRCS} )
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC "${CMAKE_BINARY_DIR}"
+target_include_directories(${PROJECT_NAME} PUBLIC
+    "${CMAKE_BINARY_DIR}"
+    ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
+target_link_libraries(${PROJECT_NAME} PUBLIC pthread)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC pthread)
 target_include_directories(${LIBRARY_NAME} PRIVATE "${CMAKE_BINARY_DIR}")
 target_include_directories(${LIBRARY_NAME} PRIVATE "${PATHS}")
 
@@ -46,12 +47,7 @@ endif()
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(TARGETS ${LIBRARY_NAME} LIBRARY DESTINATION lib)
 
-
 set(CPACK_GENERATOR DEB)
-set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)

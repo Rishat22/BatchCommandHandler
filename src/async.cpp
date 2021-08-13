@@ -1,7 +1,7 @@
-#include "async.h"
 #include <memory>
-#include "Output/console_output.h"
-#include "Output/logfile_output.h"
+#include "async.h"
+#include "outputs/console_output.h"
+#include "outputs/logfile_output.h"
 #include "batch_command_handler.h"
 
 namespace async {
