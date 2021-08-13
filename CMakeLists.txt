@@ -12,19 +12,16 @@ endif()
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(project_sources
-    batch_command.cpp
-    batch_command_handler.cpp
-    tokenizer.cpp
-    Output/console_output.cpp
-    Output/logfile_output.cpp
-    main.cpp
-    )
+file(GLOB HRDS
+    include/*.h
+)
+file(GLOB SRCS
+    src/*.cpp
+)
 
+add_library(${LIBRARY_NAME} STATIC  src/async.cpp  include/async.h)
 
-add_library(${LIBRARY_NAME} STATIC  async.cpp  async.h)
-
-add_executable(${PROJECT_NAME} ${project_sources} )
+add_executable(${PROJECT_NAME} ${SRCS} )
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC "${CMAKE_BINARY_DIR}"
@@ -48,6 +45,10 @@ endif()
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
 install(TARGETS ${LIBRARY_NAME} LIBRARY DESTINATION lib)
+
+file(GLOB TEST_SRCS
+    tests/*.cpp
+)
 
 set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
