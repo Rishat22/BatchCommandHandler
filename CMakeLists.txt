@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(PROJECT_NAME BatchCommandHandler)
+set(TEST_NAME test_${PROJECT_NAME})
 set(LIBRARY_NAME async)
 set(PATHS include/ include/outputs/)
 
@@ -24,7 +25,7 @@ file(GLOB SRCS
 
 add_library(${LIBRARY_NAME} STATIC  src/async.cpp  include/async.h)
 
-add_executable( ${PROJECT_NAME} ${SRCS} )
+add_executable( ${PROJECT_NAME} ${SRCS} main.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_BINARY_DIR}
@@ -38,12 +39,41 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
 target_include_directories(${LIBRARY_NAME} PRIVATE ${CMAKE_BINARY_DIR})
 target_include_directories(${LIBRARY_NAME} PRIVATE ${PATHS})
 
+file(GLOB TEST_SRCS
+    tests/*.cpp
+)
+find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+add_executable(${TEST_NAME}
+    ${SRCS}
+    ${TEST_SRCS}
+)
+
+target_include_directories(${TEST_NAME} PUBLIC
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
+target_include_directories(${TEST_NAME} PRIVATE
+    ${PATHS}
+    ${CMAKE_BINARY_DIR}
+    )
+target_link_libraries(${TEST_NAME} PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(${TEST_NAME} PRIVATE ${LIBRARY_NAME})
+target_link_libraries(${TEST_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${TEST_NAME} PRIVATE pthread)
+
+
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE
         /W4
     )
+    target_compile_options(${TEST_NAME} PRIVATE
+        /W4
+    )
 else ()
     target_compile_options(${PROJECT_NAME} PRIVATE
+        -Wall -Wextra -pedantic -Werror
+    )
+    target_compile_options(${TEST_NAME} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
@@ -55,3 +85,6 @@ set(CPACK_GENERATOR DEB)
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
+enable_testing()
+
+add_test(${TEST_NAME} ${TEST_NAME})

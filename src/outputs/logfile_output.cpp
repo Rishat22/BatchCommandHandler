@@ -3,7 +3,9 @@
 #include <fstream>
 #include <sstream>
 #include <random>
+#include <filesystem>
 
+namespace fs = std::filesystem;
 //const std::chrono::milliseconds task_process_time(100);
 
 LogFileOutput::LogFileOutput()
@@ -27,9 +29,18 @@ void LogFileOutput::print(const std::vector<std::string>& str_data)
 	m_ConditionVar.notify_one();
 }
 
+fs::path getLogDir()
+{
+	const fs::path log_path = fs::current_path() / "logs";
+	fs::directory_entry entry_dir { log_path };
+	if (!entry_dir.exists())
+		fs::create_directory(log_path);
+	return log_path;
+}
+
 void LogFileOutput::saveData(const std::vector<std::string>& str_data)
 {
-	std::string file_name = getFileName();
+	const auto file_name = getLogDir() / getFileName();
 	std::ofstream log_file;
 	log_file.open(file_name);
 
