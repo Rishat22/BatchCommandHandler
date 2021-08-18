@@ -5,6 +5,7 @@ BatchCommandHandler::BatchCommandHandler(const size_t commandsMaxSize)
 	: m_Tokenizer(commandsMaxSize)
 {
 	m_StaticCommands.reserve(commandsMaxSize);
+	m_DynamicCommands.reserve(commandsMaxSize);
 }
 
 BatchCommandHandler::~BatchCommandHandler()
@@ -15,13 +16,24 @@ BatchCommandHandler::~BatchCommandHandler()
 	}
 }
 
-void BatchCommandHandler::processCommand(const std::string& str_command){
+void BatchCommandHandler::processCommand(const std::string& str_command)
+{
 	processCommand( m_Tokenizer.Tokenize( str_command ) );
 }
 
 void BatchCommandHandler::addOutputPrinter(IOutput* output_printer)
 {
 	m_OutputPrinters.emplace_back( output_printer );
+}
+
+int BatchCommandHandler::createContext()
+{
+	return 0;
+}
+
+bool BatchCommandHandler::removeContext(const int /*context*/)
+{
+	return false;
 }
 
 void BatchCommandHandler::processCommand(const BatchCommands& batch_commands)

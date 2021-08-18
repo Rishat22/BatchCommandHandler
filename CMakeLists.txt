@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 set(PROJECT_NAME BatchCommandHandler)
 set(LIBRARY_NAME async)
+set(PATHS include/ include/outputs/)
 
 if(DEFINED ENV{GITHUB_RUN_NUMBER})
     project(${PROJECT_NAME} VERSION 0.0.$ENV{GITHUB_RUN_NUMBER})
@@ -14,9 +15,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB HRDS
     include/*.h
+    src/outputs/*.h
 )
 file(GLOB SRCS
     src/*.cpp
+    src/outputs/*.cpp
 )
 
 add_library(${LIBRARY_NAME} STATIC  src/async.cpp  include/async.h)
@@ -24,15 +27,16 @@ add_library(${LIBRARY_NAME} STATIC  src/async.cpp  include/async.h)
 add_executable( ${PROJECT_NAME} ${SRCS} )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-    "${CMAKE_BINARY_DIR}"
+    ${CMAKE_BINARY_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/include
 )
+target_include_directories(${PROJECT_NAME} PRIVATE ${PATHS})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC pthread)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARY_NAME})
 
-target_include_directories(${LIBRARY_NAME} PRIVATE "${CMAKE_BINARY_DIR}")
-target_include_directories(${LIBRARY_NAME} PRIVATE "${PATHS}")
+target_include_directories(${LIBRARY_NAME} PRIVATE ${CMAKE_BINARY_DIR})
+target_include_directories(${LIBRARY_NAME} PRIVATE ${PATHS})
 
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE

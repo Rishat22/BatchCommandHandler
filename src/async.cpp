@@ -10,14 +10,16 @@ std::unique_ptr<BatchCommandHandler> BATCH_COMMAND_HANDLER = nullptr;
 
 int connect(const std::size_t bulk_size)
 {
-	BATCH_COMMAND_HANDLER.reset( new BatchCommandHandler(bulk_size));
+	if(BATCH_COMMAND_HANDLER == nullptr)
+	{
+		BATCH_COMMAND_HANDLER.reset( new BatchCommandHandler(bulk_size));
+		BATCH_COMMAND_HANDLER->addOutputPrinter( new ConsoleOutput() );
+		auto logfile_output = new LogFileOutput();
+		logfile_output->startWork();
+		BATCH_COMMAND_HANDLER->addOutputPrinter( logfile_output );
+	}
 
-	BATCH_COMMAND_HANDLER->addOutputPrinter( new ConsoleOutput() );
-	auto logfile_output = new LogFileOutput();
-	logfile_output->startWork();
-	BATCH_COMMAND_HANDLER->addOutputPrinter( logfile_output );
-
-	return 0;
+	return BATCH_COMMAND_HANDLER->createContext();
 }
 
 void receive(const char* data, const std::size_t /*size*/, const int /*context*/)
@@ -26,9 +28,10 @@ void receive(const char* data, const std::size_t /*size*/, const int /*context*/
 	BATCH_COMMAND_HANDLER->processCommand(inputData);
 }
 
-void disconnect(const int /*context*/)
+void disconnect(const int context)
 {
-	BATCH_COMMAND_HANDLER.reset();
+	if(BATCH_COMMAND_HANDLER->removeContext(context) )
+		BATCH_COMMAND_HANDLER.reset();
 }
 
 }
