@@ -1,4 +1,5 @@
 #include <memory>
+#include <sstream>
 #include "async.h"
 #include "outputs/console_output.h"
 #include "outputs/logfile_output.h"
@@ -22,16 +23,25 @@ int connect(const std::size_t bulk_size)
 	return BATCH_COMMAND_HANDLER->createContext();
 }
 
-void receive(const char* data, const std::size_t /*size*/, const int /*context*/)
+void receive(const char* data, const std::size_t length, const int /*context*/)
 {
-	const std::string inputData = data;
-	BATCH_COMMAND_HANDLER->processCommand(inputData);
+	const auto inputData = std::string{data, length};
+	std::stringstream ss(inputData);
+	std::string command;
+
+	while(std::getline(ss, command, '\n')){
+		BATCH_COMMAND_HANDLER->processCommand(inputData);
+	}
 }
 
 void disconnect(const int context)
 {
 	if(BATCH_COMMAND_HANDLER->removeContext(context) )
+	{
 		BATCH_COMMAND_HANDLER.reset();
+		std::cout << "No more connections" << std::endl;
+	}
+
 }
 
 }

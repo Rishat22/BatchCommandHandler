@@ -5,7 +5,7 @@
 namespace async {
 
 int connect(const std::size_t bulk_size);
-void receive(const char* data, const std::size_t size, const int context);
+void receive(const char* data, const std::size_t length, const int context);
 void disconnect(const int context);
 
 }
