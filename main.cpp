@@ -1,30 +1,27 @@
 #include <iostream>
-#include <string>
-#include "async.h"
+#include "server.h"
 
 int main(int argc, char* argv[])
 {
+	short port;
 	size_t commands_max_size;
-	if (argc != 2)
+	if (argc != 3)
 	{
-		std::cout << "Try with the argument: max size commands" << std::endl;
+		std::cerr << "Usage: BatchCommandHandler <port> <size_commands>\n";
 		return 1;
 	}
 	try
 	{
-		commands_max_size = std::stoi(argv[1]);
+		port = std::stoi(argv[1]);
+		commands_max_size = std::stoi(argv[2]);
 	}
 	catch (const std::invalid_argument& ia) {
 		std::cerr << "Invalid argument: " << ia.what() << '\n';
 		return 1;
 	}
 
-	const auto context = async::connect(commands_max_size);
-	std::string inputData;
-	while(std::getline(std::cin, inputData))
-	{
-		async::receive(inputData.c_str(), inputData.size(), context);
-	}
-	async::disconnect(context);
-	return 0;
+	network::Server server(port, commands_max_size);
+	server.run();
+
+  return 0;
 }
