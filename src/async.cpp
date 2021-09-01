@@ -1,6 +1,7 @@
 #include <memory>
 #include <sstream>
 #include <map>
+#include <ctime>
 #include "async.h"
 #include "outputs/console_output.h"
 #include "outputs/logfile_output.h"
@@ -12,7 +13,9 @@ std::map<int, std::unique_ptr<BatchCommandHandler>> BATCH_COMMAND_HANDLER_LIST;
 
 int createContext()
 {
-	return 0;
+	std::srand(std::time(nullptr));
+	int random_variable = std::rand();
+	return random_variable;
 }
 
 int connect(const std::size_t bulk_size)
