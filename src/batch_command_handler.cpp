@@ -26,16 +26,6 @@ void BatchCommandHandler::addOutputPrinter(IOutput* output_printer)
 	m_OutputPrinters.emplace_back( output_printer );
 }
 
-int BatchCommandHandler::createContext()
-{
-	return 0;
-}
-
-bool BatchCommandHandler::removeContext(const int /*context*/)
-{
-	return false;
-}
-
 void BatchCommandHandler::processCommand(const BatchCommands& batch_commands)
 {
 	for( const auto& batch_command : batch_commands )
