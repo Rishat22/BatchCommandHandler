@@ -16,9 +16,10 @@ void ConsoleOutput::print(const std::vector<std::string>& str_data)
 
 void ConsoleOutput::startWork()
 {
+	m_isWorking = true;
 	m_outputThread = std::thread([&]()
 	{
-		while(true)
+		while(m_isWorking)
 		{
 			if(!m_printData.empty())
 			{
@@ -45,6 +46,7 @@ void ConsoleOutput::printToConsole(const std::vector<std::string>& str_data)
 
 void ConsoleOutput::stopWork()
 {
+	m_isWorking = false;
 	if(m_outputThread.joinable())
 		m_outputThread.join();
 }

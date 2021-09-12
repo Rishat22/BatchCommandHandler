@@ -19,6 +19,7 @@ private:
 private:
 	std::thread m_outputThread;
 	std::vector<std::string> m_printData;
+	bool m_isWorking;
 	std::mutex m_Mtx;
 };
 
