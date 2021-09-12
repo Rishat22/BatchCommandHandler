@@ -22,9 +22,8 @@ int connect(const std::size_t bulk_size)
 {
 	auto batchCommandHandler = std::make_unique<BatchCommandHandler>(bulk_size);
 	batchCommandHandler->addOutputPrinter( new ConsoleOutput() );
-	auto logfile_output = new LogFileOutput();
-	logfile_output->startWork();
-	batchCommandHandler->addOutputPrinter( logfile_output );
+	batchCommandHandler->addOutputPrinter( new LogFileOutput() );
+	batchCommandHandler->start();
 
 	auto context = createContext();
 	BATCH_COMMAND_HANDLER_LIST[context] = std::move(batchCommandHandler);
@@ -44,8 +43,10 @@ void receive(const char* data, const std::size_t length, const int context)
 
 void disconnect(const int context)
 {
-	if(BATCH_COMMAND_HANDLER_LIST.find(context) != BATCH_COMMAND_HANDLER_LIST.end() )
+	auto command_handler = BATCH_COMMAND_HANDLER_LIST.find(context);
+	if( command_handler != BATCH_COMMAND_HANDLER_LIST.end() )
 	{
+		command_handler->second->stop();
 		BATCH_COMMAND_HANDLER_LIST.erase(context);
 	}
 

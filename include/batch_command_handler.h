@@ -14,6 +14,8 @@ public:
     ~BatchCommandHandler();
     void processCommand( const std::string& str_command );
     void addOutputPrinter( IOutput* output_printer );
+	void start();
+	void stop();
 private:
     void processCommand(const std::vector<std::unique_ptr<BatchCommand> >& batch_commands);
     void printCommands(const std::vector< std::string > str_commands);

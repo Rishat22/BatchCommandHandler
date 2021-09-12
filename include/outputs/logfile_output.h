@@ -15,9 +15,9 @@ class LogFileOutput : public IOutput
 public:
 	LogFileOutput();
 	virtual ~LogFileOutput();
-	void startWork();
-	void stopWork();
 	void print(const std::vector<std::string>& str_data) override;
+	void startWork() override;
+	void stopWork() override;
 private:
 	void saveData(const std::vector<std::string>& str_data);
 	std::string getFileName();

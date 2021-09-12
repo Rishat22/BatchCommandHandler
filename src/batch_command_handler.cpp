@@ -26,6 +26,22 @@ void BatchCommandHandler::addOutputPrinter(IOutput* output_printer)
 	m_OutputPrinters.emplace_back( output_printer );
 }
 
+void BatchCommandHandler::start()
+{
+	for(const auto& output_printer : m_OutputPrinters)
+	{
+		output_printer->startWork();
+	}
+}
+
+void BatchCommandHandler::stop()
+{
+	for(const auto& output_printer : m_OutputPrinters)
+	{
+		output_printer->stopWork();
+	}
+}
+
 void BatchCommandHandler::processCommand(const BatchCommands& batch_commands)
 {
 	for( const auto& batch_command : batch_commands )

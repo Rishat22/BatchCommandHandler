@@ -6,7 +6,6 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
-//const std::chrono::milliseconds task_process_time(100);
 
 LogFileOutput::LogFileOutput()
 	: m_TaskReady(false)
@@ -78,32 +77,40 @@ std::vector<std::string> LogFileOutput::wait_for_task(bool& task_ready)
 	const auto task_data = m_CmdTasks.front();
 	m_CmdTasks.pop();
 	task_ready = false;
-	lock.unlock();
 	return task_data;
 }
 
 void LogFileOutput::startWork()
 {
-	m_isWorking = true;
-	for (auto& thread : m_ProcessingThreads)
+	std::unique_lock lock(m_Mtx);
+	if(m_isWorking == false)
 	{
-		thread = std::thread([&]()
+		m_isWorking = true;
+		for (auto& thread : m_ProcessingThreads)
 		{
-			while (m_isWorking || !m_CmdTasks.empty())
+			thread = std::thread([&]()
 			{
-				const auto task_data = wait_for_task(m_TaskReady);
-				saveData(task_data);
-			}
-		});
+				while (m_isWorking || !m_CmdTasks.empty())
+				{
+					const auto task_data = wait_for_task(m_TaskReady);
+					saveData(task_data);
+				}
+			});
+		}
 	}
 }
 
 void LogFileOutput::stopWork()
 {
-	m_isWorking = false;
-	for (auto& thread : m_ProcessingThreads)
+	std::unique_lock lock(m_Mtx);
+	if(m_isWorking)
 	{
-		thread.join();
+		for (auto& thread : m_ProcessingThreads)
+		{
+			if(thread.joinable())
+				thread.join();
+		}
+		m_isWorking = false;
 	}
 }
 
