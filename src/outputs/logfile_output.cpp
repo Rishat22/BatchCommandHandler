@@ -70,14 +70,17 @@ std::string LogFileOutput::getFileName()
 	return filename_stream.str();
 }
 
-std::vector<std::string> LogFileOutput::wait_for_task(bool& task_ready)
+void LogFileOutput::saveTaskData(const bool& is_working, bool& task_ready)
 {
 	std::unique_lock lock(m_Mtx);
-	m_ConditionVar.wait(lock, [&task_ready]() { return task_ready; });
-	const auto task_data = m_CmdTasks.front();
-	m_CmdTasks.pop();
-	task_ready = false;
-	return task_data;
+	m_ConditionVar.wait(lock, [&task_ready, &is_working]() { return task_ready || !is_working; });
+	if(!m_CmdTasks.empty())
+	{
+		const auto task_data = m_CmdTasks.front();
+		m_CmdTasks.pop();
+		task_ready = false;
+		saveData(task_data);
+	}
 }
 
 void LogFileOutput::startWork()
@@ -92,8 +95,7 @@ void LogFileOutput::startWork()
 			{
 				while (m_isWorking || !m_CmdTasks.empty())
 				{
-					const auto task_data = wait_for_task(m_TaskReady);
-					saveData(task_data);
+					saveTaskData(m_isWorking, m_TaskReady);
 				}
 			});
 		}
@@ -102,15 +104,20 @@ void LogFileOutput::startWork()
 
 void LogFileOutput::stopWork()
 {
-	std::unique_lock lock(m_Mtx);
 	if(m_isWorking)
 	{
+		{
+			std::unique_lock lock(m_Mtx);
+			m_isWorking = false;
+		}
+		m_ConditionVar.notify_all();
 		for (auto& thread : m_ProcessingThreads)
 		{
 			if(thread.joinable())
+			{
 				thread.join();
+			}
 		}
-		m_isWorking = false;
 	}
 }
 
